@@ -1,13 +1,91 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Comparison of password managers and my setup | gbaranski blog</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/projects>Projects</a></li><li><a href=/about>About</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Comparison of password managers and my setup</span></h1><h2 class=date>2021/07/09</h2></div><main><h1 id=introduction>Introduction</h1><p>For a long time I was looking for a password manager which would meet all the following requirements:</p><ol><li>Open-source,</li><li>CLI/TUI application must not be written in any scripting language. I don&rsquo;t want slow startup time, I might use a password manager in scripts and 0.5s startup time is unacceptable.</li><li>Android & Linux support,</li><li>Option for self-hosting,</li><li>Must be relatively easy to synchronize between multiple computers, must work on Linux and Android.</li></ol><h2 id=what-ive-tried-so-far>What I&rsquo;ve tried so far</h2><h3 id=bitwarden>Bitwarden</h3><ol><li>✅ Open-source, under GNU GPLv2 License.</li><li>❌ There is CLI app, but it&rsquo;s written in JS which makes it horribly slow to start up, launching <code>bw --help</code> took 544ms; just for comparsion <a href=https://github.com/gopasspw/gopass>gopass</a> help page takes 66ms, retrieving a specific password takes 200ms, huge difference.</li><li>✅ Android & Linux is fully supported, but the desktop app is written in Electron, which is slow; moreover, by enabling Wayland&rsquo;s fractional scaling everything gets blurred.</li><li>✅ Self-hosting is possible via <a href=https://github.com/dani-garcia/vaultwarden>vaultwarden</a>.</li><li>✅ Super simple to synchronize, probably the easiest of all other options mentioned here.</li></ol><h3 id=keepassxc>KeepassXC</h3><ol><li>✅ Open-source, under GNU GPLv3 License.</li><li>✅ There is <code>keepassxc-cli</code>.</li><li>✅ Android is supported by <a href=https://www.keepassdx.com/>KeepassDX</a>, I personally don&rsquo;t like the UI of the app; Linux is supported.</li><li>✅ Self-host by storing database on computer.</li><li>❌ Complicated synchronization between Linux and Android.</li></ol><h3 id=gopass>gopass</h3><ol><li>✅ Open-source, under MIT License.</li><li>✅ <code>gopass</code> by itself is CLI/TUI Application.</li><li>✅ Android is supported by <a href=https://github.com/android-password-store/Android-Password-Store>Android-Password-Store</a>, which is very nice, looks the best of all other apps mentioned here; Linux is supported.</li><li>✅ Self-host is possible by storing git repo on my computer.</li><li>✅ As soon as you get GPG keys working, synchronization is achieved by synchronizing git repository.</li></ol><h3 id=verdict>Verdict</h3><p>As you can see, gopass meets all of my requirements.</p><p>The rest of the post covers</p><ul><li>GPG Keys for safe encrypting/decrypting stored keys.</li><li>Git repository to store passwords.</li><li>Synchronizing passwords between Android and Linux.</li><li>Setting up gopass password store.</li></ul><h1 id=prerequisites>Prerequisites</h1><p><code>GPG_TTY</code> variable must be set to get GPG working, check if exists by <code>echo $GPG_TTY</code>, if it&rsquo;s not set <code>GPG_TTY</code> to output of <code>tty</code> command.</p><p>Bash/ZSH:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#75715e># ~/.bashrc or ~/.zshrc</span>
+<!doctype html><html lang=en-us>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Grzegorz Baranski</title>
+<link rel=stylesheet href=/css/style.css>
+<link rel=stylesheet href=/css/fonts.css>
+</head>
+<body>
+<nav>
+<ul class=menu>
+<li><a href=/>Home</a></li>
+<li><a href=/projects>Projects</a></li>
+<li><a href=/about>About</a></li>
+</ul>
+<hr>
+</nav>
+<div class=article-meta>
+<h1><span class=title>Comparison of password managers and my setup</span></h1>
+<h2 class=date>2021/07/09</h2>
+</div>
+<main>
+<h1 id=introduction>Introduction</h1>
+<p>For a long time I was looking for a password manager which would meet all the following requirements:</p>
+<ol>
+<li>Open-source,</li>
+<li>CLI/TUI application must not be written in any scripting language. I don&rsquo;t want slow startup time, I might use a password manager in scripts and 0.5s startup time is unacceptable.</li>
+<li>Android & Linux support,</li>
+<li>Option for self-hosting,</li>
+<li>Must be relatively easy to synchronize between multiple computers, must work on Linux and Android.</li>
+</ol>
+<h2 id=what-ive-tried-so-far>What I&rsquo;ve tried so far</h2>
+<h3 id=bitwarden>Bitwarden</h3>
+<ol>
+<li>✅ Open-source, under GNU GPLv2 License.</li>
+<li>❌ There is CLI app, but it&rsquo;s written in JS which makes it horribly slow to start up, launching <code>bw --help</code> took 544ms; just for comparsion <a href=https://github.com/gopasspw/gopass>gopass</a> help page takes 66ms, retrieving a specific password takes 200ms, huge difference.</li>
+<li>✅ Android & Linux is fully supported, but the desktop app is written in Electron, which is slow; moreover, by enabling Wayland&rsquo;s fractional scaling everything gets blurred.</li>
+<li>✅ Self-hosting is possible via <a href=https://github.com/dani-garcia/vaultwarden>vaultwarden</a>.</li>
+<li>✅ Super simple to synchronize, probably the easiest of all other options mentioned here.</li>
+</ol>
+<h3 id=keepassxc>KeepassXC</h3>
+<ol>
+<li>✅ Open-source, under GNU GPLv3 License.</li>
+<li>✅ There is <code>keepassxc-cli</code>.</li>
+<li>✅ Android is supported by <a href=https://www.keepassdx.com/>KeepassDX</a>, I personally don&rsquo;t like the UI of the app; Linux is supported.</li>
+<li>✅ Self-host by storing database on computer.</li>
+<li>❌ Complicated synchronization between Linux and Android.</li>
+</ol>
+<h3 id=gopass>gopass</h3>
+<ol>
+<li>✅ Open-source, under MIT License.</li>
+<li>✅ <code>gopass</code> by itself is CLI/TUI Application.</li>
+<li>✅ Android is supported by <a href=https://github.com/android-password-store/Android-Password-Store>Android-Password-Store</a>, which is very nice, looks the best of all other apps mentioned here; Linux is supported.</li>
+<li>✅ Self-host is possible by storing git repo on my computer.</li>
+<li>✅ As soon as you get GPG keys working, synchronization is achieved by synchronizing git repository.</li>
+</ol>
+<h3 id=verdict>Verdict</h3>
+<p>As you can see, gopass meets all of my requirements.</p>
+<p>The rest of the post covers</p>
+<ul>
+<li>GPG Keys for safe encrypting/decrypting stored keys.</li>
+<li>Git repository to store passwords.</li>
+<li>Synchronizing passwords between Android and Linux.</li>
+<li>Setting up gopass password store.</li>
+</ul>
+<h1 id=prerequisites>Prerequisites</h1>
+<p><code>GPG_TTY</code> variable must be set to get GPG working, check if exists by <code>echo $GPG_TTY</code>, if it&rsquo;s not set <code>GPG_TTY</code> to output of <code>tty</code> command.</p>
+<p>Bash/ZSH:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#75715e># ~/.bashrc or ~/.zshrc</span>
 export GPG_TTY<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>tty<span style=color:#66d9ef>)</span>
-</code></pre></div><p>Fish:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#75715e># ~/.config/fish/config.fish</span>
+</code></pre></div><p>Fish:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#75715e># ~/.config/fish/config.fish</span>
 export GPG_TTY<span style=color:#f92672>=(</span>tty<span style=color:#f92672>)</span>
-</code></pre></div><h1 id=git-repository>Git repository</h1><p>Git repository is required to store passwords, however gopass also <a href=https://github.com/gopasspw/gopass/blob/master/docs/setup.md#storing-and-syncing-your-password-store-with-google-drive--dropbox--syncthing--etc>supports</a> other ways to store passwords, but Git Repo seems best option for me, I store them in Github private repository, although it could be even self-hosted.</p><p>Keep in mind that password database is not the top secret, of course it will be better if it will be private, but the password database by itself will be encrypted with password.</p><p>Create Github repository using <a href=https://github.com/cli/cli/>Github CLI</a></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ gh repo create pass
+</code></pre></div><h1 id=git-repository>Git repository</h1>
+<p>Git repository is required to store passwords, however gopass also <a href=https://github.com/gopasspw/gopass/blob/master/docs/setup.md#storing-and-syncing-your-password-store-with-google-drive--dropbox--syncthing--etc>supports</a> other ways to store passwords, but Git Repo seems best option for me, I store them in Github private repository, although it could be even self-hosted.</p>
+<p>Keep in mind that password database is not the top secret, of course it will be better if it will be private, but the password database by itself will be encrypted with password.</p>
+<p>Create Github repository using <a href=https://github.com/cli/cli/>Github CLI</a></p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ gh repo create pass
 ? Visibility Private
 ? This will create the <span style=color:#e6db74>&#34;pass&#34;</span> repository on GitHub. Continue? Yes
 ✓ Created repository gbaranski/pass on GitHub
 ? Create a local project directory <span style=color:#66d9ef>for</span> <span style=color:#e6db74>&#34;gbaranski/pass&#34;</span>? No
-</code></pre></div><h1 id=gpg-keys>GPG keys</h1><h2 id=gpg-primary-key>GPG Primary key</h2><p><em><strong>If you already have GPG Primary Key that you can use, you can skip this step</strong></em></p><p>Generate new GPG Key using <code>gpg --full-generate-key --expert</code>, in this example we&rsquo;re using RSA because I&rsquo;m not sure about ECC keys compatibility.</p><p>The primary key won&rsquo;t be able to encrypt/sign, there will have sub-keys for that, primary key will be used only for creating new sub-keys if needed, however for password managament purposes we&rsquo;re going to use only one sub-key for all computers.</p><pre><code>$ gpg --full-generate-key
+</code></pre></div><h1 id=gpg-keys>GPG keys</h1>
+<h2 id=gpg-primary-key>GPG Primary key</h2>
+<p><em><strong>If you already have GPG Primary Key that you can use, you can skip this step</strong></em></p>
+<p>Generate new GPG Key using <code>gpg --full-generate-key --expert</code>, in this example we&rsquo;re using RSA because I&rsquo;m not sure about ECC keys compatibility.</p>
+<p>The primary key won&rsquo;t be able to encrypt/sign, there will have sub-keys for that, primary key will be used only for creating new sub-keys if needed, however for password managament purposes we&rsquo;re going to use only one sub-key for all computers.</p>
+<pre><code>$ gpg --full-generate-key
 gpg (GnuPG) 2.2.28; Copyright (C) 2021 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -55,12 +133,18 @@ pub   rsa4096 2021-07-09 [SC]
 uid                      Grzegorz Baranski &lt;root@gbaranski.com&gt;
 sub   rsa4096 2021-07-09 [E]
 </code></pre><p>In this example <a href=mailto:root@gbaranski.com>root@gbaranski.com</a> will used as GPG Key ID identifier, of course replace it with your own email when setting it up.
-If you have few GPG Key IDs with the same email, check your GPG Key ID by using <code>gpg --list-secret-keys --keyid-format 0xLONG</code> and then use it instead email.</p><p>Check if the keypair has been properly created</p><pre><code>$ gpg --list-secret-key --keyid-format 0xLONG root@gbaranski.com
+If you have few GPG Key IDs with the same email, check your GPG Key ID by using <code>gpg --list-secret-keys --keyid-format 0xLONG</code> and then use it instead email.</p>
+<p>Check if the keypair has been properly created</p>
+<pre><code>$ gpg --list-secret-key --keyid-format 0xLONG root@gbaranski.com
 sec   rsa4096/0x6C771D81228409BA 2021-07-09 [SC]
       EA0AEFD44D1EAFA05B3ED6BD6C771D81228409BA
 uid                   [ultimate] Grzegorz Baranski &lt;root@gbaranski.com&gt;
 ssb   rsa4096/0x6FC346E99EA085F4 2021-07-09 [E]
-</code></pre><h3 id=backing-up-primary-secret-key>Backing up primary secret key</h3><p>Copy <code>~/.gnupg</code> to some safe place, such as USB Stick in case something happens.</p><h2 id=setting-up-gopass>Setting up Gopass</h2><p>First off, you need to have a Git repository, in my case it&rsquo;s Github private repo named <code>passwords</code>.</p><pre><code class=language-none data-lang=none>$ gopass setup
+</code></pre><h3 id=backing-up-primary-secret-key>Backing up primary secret key</h3>
+<p>Copy <code>~/.gnupg</code> to some safe place, such as USB Stick in case something happens.</p>
+<h2 id=setting-up-gopass>Setting up Gopass</h2>
+<p>First off, you need to have a Git repository, in my case it&rsquo;s Github private repo named <code>passwords</code>.</p>
+<pre><code class=language-none data-lang=none>$ gopass setup
 
    __     _    _ _      _ _   ___   ___
  /'_ '\ /'_'\ ( '_'\  /'_' )/',__)/',__)
@@ -80,7 +164,8 @@ Please enter an email address for password store git config []: root@gbaranski.c
 Configuring the git remote ...
 Please enter the git remote for your shared store []: git@github.com:gbaranski/passwords.git
 ✅ Configured
-</code></pre><h3 id=add-first-password>Add first password</h3><pre><code>$ gopass create
+</code></pre><h3 id=add-first-password>Add first password</h3>
+<pre><code>$ gopass create
 🌟 Welcome to the secret creation wizard (gopass create)!
 🧪 Hint: Use 'gopass edit -c' for more control!
 [ 0] Website Login
@@ -108,7 +193,10 @@ Ro0EWV3Q8H2oGlWTR8XUHanu
 comment: 
 url: example.com
 username: gbaranski
-</code></pre><h3 id=synchronizing-with-android-phone>Synchronizing with Android phone</h3><p>First off, we need to export the GPG Private Key, I use croc for sending and receiving files between PC and Phone.</p><p>Send the private key to the device using croc</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ gpg --export-secret-keys --armor root@gbaranski.com | croc send
+</code></pre><h3 id=synchronizing-with-android-phone>Synchronizing with Android phone</h3>
+<p>First off, we need to export the GPG Private Key, I use croc for sending and receiving files between PC and Phone.</p>
+<p>Send the private key to the device using croc</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ gpg --export-secret-keys --armor root@gbaranski.com | croc send
 Sending <span style=color:#e6db74>&#39;stdin&#39;</span> <span style=color:#f92672>(</span>6.6 kB<span style=color:#f92672>)</span>         
 Code is: 4733-quick-eclipse-forum
 On the other computer run
@@ -117,5 +205,19 @@ croc 4733-quick-eclipse-forum
 
 Sending <span style=color:#f92672>(</span>-&gt;192.168.1.12:49309<span style=color:#f92672>)</span>
  100% |████████████████████| <span style=color:#f92672>(</span>6.6/6.6 kB, 3.214 MB/s<span style=color:#f92672>)</span>
-</code></pre></div><p>Accept the file on Android using <a href=https://f-droid.org/en/packages/com.github.howeyc.crocgui/>Croc Android</a></p><p>Use OpenKeychain app to import PGP Key, available in <a href=https://f-droid.org/en/packages/org.sufficientlysecure.keychain/><code>F-Droid</code></a>.
-Import private key by selecting  and then &ldquo;Import from File&rdquo;.</p><p>Open <a href=https://github.com/android-password-store/Android-Password-Store>Android-Password-Store</a>, generate SSH keys, clone repository from Github and view your passwords.</p><h1 id=conclusions>Conclusions</h1><p>gopass is awesome password manager for people who like using things in terminal.</p><p>I hope this article was useful and saved you some time. 👋</p><h1 id=updated-09072021>Updated 09.07.2021</h1><p>No longer using sub-keys, that complicated this setup by a lot, and for some reason my phone suddenly stopped decrypting passwords encrypted on my laptop.</p></main><footer><hr><a href=https://github.com/gbaranski>Github</a></footer></body></html>
+</code></pre></div><p>Accept the file on Android using <a href=https://f-droid.org/en/packages/com.github.howeyc.crocgui/>Croc Android</a></p>
+<p>Use OpenKeychain app to import PGP Key, available in <a href=https://f-droid.org/en/packages/org.sufficientlysecure.keychain/><code>F-Droid</code></a>.
+Import private key by selecting  and then &ldquo;Import from File&rdquo;.</p>
+<p>Open <a href=https://github.com/android-password-store/Android-Password-Store>Android-Password-Store</a>, generate SSH keys, clone repository from Github and view your passwords.</p>
+<h1 id=conclusions>Conclusions</h1>
+<p>gopass is awesome password manager for people who like using things in terminal.</p>
+<p>I hope this article was useful and saved you some time. 👋</p>
+<h1 id=updated-09072021>Updated 09.07.2021</h1>
+<p>No longer using sub-keys, that complicated this setup by a lot, and for some reason my phone suddenly stopped decrypting passwords encrypted on my laptop.</p>
+</main>
+<footer>
+<hr>
+<a href=https://github.com/gbaranski>Github</a>
+</footer>
+</body>
+</html>
