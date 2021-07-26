@@ -3,7 +3,7 @@ baseURL = "/"
 theme = 'xmin'
 
 # Basic metadata configuration for your blog.
-title = "gbaranski blog"
+title = "Grzegorz Baranski"
 author = "gbaranski"
 copyright = "Copyright © 2021, gbaranski <a href='https://github.com'>Github</a>"
 languageCode = "en-US"
