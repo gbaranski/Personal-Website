@@ -1,7 +1,7 @@
 
 # About me
 
-High school student. Full-stack experience with [different kind of applications](/projects). The vast majority of my time I spend working on [Houseflow](/projects#houseflow).
+High school student. Full-stack experience with [different kind of applications](/projects)
 
 ## What am I working on?
 
