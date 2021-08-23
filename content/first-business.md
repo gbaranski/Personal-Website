@@ -1,6 +1,5 @@
 +++
 title = "My first business"
-date = 2021-08-22
 tags = ["business"]
 description = """
 This post tells about my first business which was about buying broken iPhones, fixing them, and selling.
